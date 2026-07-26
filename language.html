@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Language — CODEMAP</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html"><span class="dot"></span>CODE<span class="accent">MAP</span></a>
+    <div class="searchbox">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="search" type="text" placeholder="Search all languages…" onfocus="window.location.href='index.html'" readonly>
+    </div>
+  </div>
+</div>
+
+<main id="langRoot"></main>
+
+<footer>CODEMAP — built for visual learners · progress saved locally in your browser</footer>
+
+<script src="js/lang-concepts.js"></script>
+<script src="js/lang-subtopics.js"></script>
+<script src="js/lang-unique-subtopics.js"></script>
+<script src="js/languages-data.js"></script>
+<script src="js/language-visualizations.js"></script>
+<script>
+(function() {
+  var mount = document.getElementById("langRoot");
+  var id = new URLSearchParams(window.location.search).get("id");
+  var lang = LANGUAGES.find(function(l) { return l.id === id; });
+
+  if (!lang) {
+    mount.innerHTML = '<div class="wrap" style="padding:60px 0;"><p style="color:var(--text-faint);font-family:var(--mono);">Language not found. <a href="languages.html" style="color:var(--cyan)">Browse all languages</a></p></div>';
+    return;
+  }
+
+  document.title = lang.name + " — CODEMAP";
+  document.documentElement.style.setProperty("--lang-color", lang.color);
+  document.documentElement.style.setProperty("--tier-color", lang.color);
+
+  var prevIdx = LANGUAGES.indexOf(lang) - 1;
+  var nextIdx = LANGUAGES.indexOf(lang) + 1;
+  var prev = prevIdx >= 0 ? LANGUAGES[prevIdx] : null;
+  var next = nextIdx < LANGUAGES.length ? LANGUAGES[nextIdx] : null;
+
+  var conceptsHtml = (lang.concepts || []).map(function(c) {
+    return '<a href="lang-concept.html?lang=' + lang.id + '&id=' + c.id + '" class="lang-concept-card" style="border-color:var(--border)">' +
+      '<div class="lang-concept-icon">' + c.icon + '</div>' +
+      '<div class="lang-concept-info">' +
+        '<h3>' + c.title + '</h3>' +
+        '<span class="lang-concept-diff" style="color:' + (c.difficulty === 'Beginner' ? 'var(--easy)' : c.difficulty === 'Intermediate' ? 'var(--amber)' : 'var(--rose)') + '">' + c.difficulty + '</span>' +
+      '</div>' +
+    '</a>';
+  }).join("");
+
+  mount.innerHTML =
+    '<header class="concept-header">' +
+      '<div class="wrap">' +
+        '<div class="crumb"><a href="index.html">← Languages</a> <span>/</span> <span>' + lang.name + '</span></div>' +
+        '<div class="lang-hero">' +
+          '<div class="lang-hero-icon" style="background:' + lang.color + '">' + lang.icon + '</div>' +
+          '<div class="lang-hero-text">' +
+            '<span class="tag" style="--tier-color:' + lang.color + '">' + lang.paradigm + '</span>' +
+            '<h1>' + lang.name + '</h1>' +
+            '<p class="lang-hero-tagline">' + lang.tagline + '</p>' +
+            '<div class="lang-hero-meta">' +
+              '<span class="meta-badge">Created ' + lang.year + '</span>' +
+              '<span class="meta-badge">' + lang.creator + '</span>' +
+              '<span class="meta-badge">' + lang.typed + '</span>' +
+              '<span class="meta-badge">' + (lang.compiled ? 'Compiled' : 'Interpreted') + '</span>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+    '</header>' +
+
+    '<div class="wrap concept-body">' +
+
+      '<div class="section-block">' +
+        '<div class="section-title" style="border-color:' + lang.color + '"><span class="section-icon">📅</span> History & Origin</div>' +
+        '<div class="section-content">' +
+          '<div class="history-text">' + lang.history.content.replace(/\n\n/g, '</p><p>').replace(/^/, '<p>').replace(/$/, '</p>') + '</div>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="section-block">' +
+        '<div class="viz-panel">' +
+          '<h2 style="border-color:' + lang.color + '">Visual Overview</h2>' +
+          '<canvas id="viz"></canvas>' +
+          '<div class="viz-caption">' + lang.name + ' — animated conceptual walkthrough</div>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="section-block">' +
+        '<div class="section-title" style="border-color:' + lang.color + '"><span class="section-icon">✅</span> Advantages</div>' +
+        '<div class="section-content">' +
+          '<div class="advantages-grid">' +
+            lang.advantages.map(function(a) {
+              return '<div class="advantage-card"><h4>' + a.title + '</h4><p>' + a.desc + '</p></div>';
+            }).join("") +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="section-block">' +
+        '<div class="section-title" style="border-color:' + lang.color + '"><span class="section-icon">🔒</span> ' + lang.security.title + '</div>' +
+        '<div class="section-content">' +
+          '<div class="security-grid">' +
+            lang.security.features.map(function(f) {
+              var riskClass = "risk-" + f.risk.toLowerCase();
+              return '<div class="security-card"><div class="security-header"><span class="risk-badge ' + riskClass + '">' + f.risk + '</span><h4>' + f.feature + '</h4></div><p>' + f.desc + '</p></div>';
+            }).join("") +
+          '</div>' +
+          '<div class="best-practices">' +
+            '<h3>Security Best Practices</h3>' +
+            '<ul>' + lang.security.bestPractices.map(function(p) { return '<li>' + p + '</li>'; }).join("") + '</ul>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="section-block">' +
+        '<div class="section-title" style="border-color:' + lang.color + '"><span class="section-icon">📝</span> Concepts & Fundamentals</div>' +
+        '<div class="section-content">' +
+          '<div class="lang-concept-grid">' + conceptsHtml + '</div>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="section-block">' +
+        '<div class="section-title" style="border-color:' + lang.color + '"><span class="section-icon">🚀</span> Use Cases</div>' +
+        '<div class="section-content">' +
+          '<div class="usecases-grid">' +
+            lang.useCases.map(function(u) { return '<span class="usecase-tag" style="border-color:' + lang.color + '">' + u + '</span>'; }).join("") +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="section-block">' +
+        '<div class="section-title" style="border-color:' + lang.color + '"><span class="section-icon">🛠</span> Ecosystem</div>' +
+        '<div class="section-content">' +
+          '<div class="ecosystem-grid">' +
+            Object.keys(lang.ecosystem).map(function(key) {
+              return '<div class="eco-col"><h4>' + key.charAt(0).toUpperCase() + key.slice(1) + '</h4><ul>' +
+                lang.ecosystem[key].map(function(item) { return '<li>' + item + '</li>'; }).join("") +
+              '</ul></div>';
+            }).join("") +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="pn-nav">' +
+        (prev ? '<a class="pn-card prev" href="language.html?id=' + prev.id + '"><div class="lbl">← Previous</div><div class="ttl">' + prev.name + '</div></a>' : '<div></div>') +
+        (next ? '<a class="pn-card next" href="language.html?id=' + next.id + '"><div class="lbl">Next →</div><div class="ttl">' + next.name + '</div></a>' : '<div></div>') +
+      '</div>' +
+
+    '</div>';
+
+  // Visualization
+  var canvas = document.getElementById("viz");
+  if (canvas && typeof mountLangViz === "function") {
+    mountLangViz(canvas, lang);
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+})();
+</script>
+</body>
+</html>

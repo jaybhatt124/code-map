@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Concept — CODEMAP</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html"><span class="dot"></span>CODE<span class="accent">MAP</span></a>
+    <div class="searchbox">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="search" type="text" placeholder="Search all languages…" onfocus="window.location.href='index.html'" readonly>
+    </div>
+  </div>
+</div>
+
+<main id="conceptRoot"></main>
+
+<footer>CODEMAP — built for visual learners · progress saved locally in your browser</footer>
+
+<script src="js/lang-concepts.js"></script>
+<script src="js/lang-subtopics.js"></script>
+<script src="js/lang-unique-subtopics.js"></script>
+<script src="js/languages-data.js"></script>
+<script src="js/language-visualizations.js"></script>
+<script>
+(function() {
+  var mount = document.getElementById("conceptRoot");
+  var params = new URLSearchParams(window.location.search);
+  var langId = params.get("lang");
+  var conceptId = params.get("id");
+
+  var lang = LANGUAGES.find(function(l) { return l.id === langId; });
+  if (!lang) {
+    mount.innerHTML = '<div class="wrap" style="padding:60px 0;"><p style="color:var(--text-faint);font-family:var(--mono);">Language not found. <a href="languages.html" style="color:var(--cyan)">Browse all languages</a></p></div>';
+    return;
+  }
+
+  var concept = (lang.concepts || []).find(function(c) { return c.id === conceptId; });
+  if (!concept) {
+    mount.innerHTML = '<div class="wrap" style="padding:60px 0;"><p style="color:var(--text-faint);font-family:var(--mono);">Concept not found. <a href="language.html?id=' + lang.id + '" style="color:var(--cyan)">Back to ' + lang.name + '</a></p></div>';
+    return;
+  }
+
+  document.title = concept.title + " — " + lang.name + " — CODEMAP";
+  document.documentElement.style.setProperty("--lang-color", lang.color);
+  document.documentElement.style.setProperty("--tier-color", lang.color);
+
+  // Find prev/next concept within this language
+  var allConcepts = lang.concepts || [];
+  var cIdx = allConcepts.indexOf(concept);
+  var prev = cIdx > 0 ? allConcepts[cIdx - 1] : null;
+  var next = cIdx < allConcepts.length - 1 ? allConcepts[cIdx + 1] : null;
+
+  // Difficulty color
+  var diffColor = concept.difficulty === "Beginner" ? "var(--easy)" :
+                  concept.difficulty === "Intermediate" ? "var(--amber)" : "var(--rose)";
+
+  mount.innerHTML =
+    '<header class="concept-header">' +
+      '<div class="wrap">' +
+        '<div class="crumb"><a href="index.html">← Languages</a> <span>/</span> <a href="language.html?id=' + lang.id + '">' + lang.name + '</a> <span>/</span> <span>' + concept.title + '</span></div>' +
+        '<div class="lang-hero">' +
+          '<div class="lang-hero-icon" style="background:' + lang.color + '">' + lang.icon + '</div>' +
+          '<div class="lang-hero-text">' +
+            '<div class="concept-meta-row">' +
+              '<span class="tag" style="--tier-color:' + lang.color + '">' + lang.name + '</span>' +
+              '<span class="diff-tag" style="color:' + diffColor + ';border-color:' + diffColor + '">' + concept.difficulty + '</span>' +
+            '</div>' +
+            '<h1>' + concept.icon + ' ' + concept.title + '</h1>' +
+            '<p class="lang-hero-tagline">Concept in ' + lang.name + '</p>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+    '</header>' +
+
+    '<div class="wrap concept-body">' +
+
+      '<div class="grid-2">' +
+        '<div>' +
+
+          '<div class="section-block">' +
+            '<div class="section-title" style="border-color:' + lang.color + '"><span class="section-icon">📖</span> Overview</div>' +
+            '<div class="section-content">' +
+              '<div class="concept-content">' + concept.content.replace(/\n\n/g, '</p><p>').replace(/^/, '<p>').replace(/$/, '</p>') + '</div>' +
+            '</div>' +
+          '</div>' +
+
+          (concept.subtopics && concept.subtopics.length > 0 ?
+            '<div class="section-block">' +
+              '<div class="section-title" style="border-color:' + lang.color + '"><span class="section-icon">📂</span> Subtopics (' + concept.subtopics.length + ')</div>' +
+              '<div class="section-content">' +
+                '<div class="subtopic-list" id="subtopicList">' +
+                  concept.subtopics.map(function(st, i) {
+                    return '<div class="subtopic-item" data-idx="' + i + '">' +
+                      '<button class="subtopic-header" style="border-left-color:' + lang.color + '">' +
+                        '<span class="subtopic-num">' + (i + 1) + '</span>' +
+                        '<span class="subtopic-title">' + st.title + '</span>' +
+                        '<span class="subtopic-arrow">▸</span>' +
+                      '</button>' +
+                      '<div class="subtopic-body">' +
+                        '<canvas class="subtopic-canvas" data-subtopic-id="' + st.id + '"></canvas>' +
+                        '<div class="subtopic-content">' + st.content.replace(/\n\n/g, '</p><p>').replace(/^/, '<p>').replace(/$/, '</p>') + '</div>' +
+                        '<pre class="code-block">' + escapeHtml(st.code) + '</pre>' +
+                      '</div>' +
+                    '</div>';
+                  }).join("") +
+                '</div>' +
+              '</div>' +
+            '</div>'
+          : '') +
+
+          '<div class="section-block">' +
+            '<div class="section-title" style="border-color:' + lang.color + '"><span class="section-icon">📝</span> Key Points</div>' +
+            '<div class="section-content">' +
+              '<div class="keypoints-list">' +
+                (concept.keyPoints || []).map(function(p) {
+                  return '<div class="keypoint-item"><span class="keypoint-dot" style="background:' + lang.color + '"></span><span>' + p + '</span></div>';
+                }).join("") +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+
+        '</div>' +
+
+        '<div>' +
+          '<div class="viz-panel">' +
+            '<h2 style="border-color:' + lang.color + '">Visualization</h2>' +
+            '<canvas id="viz"></canvas>' +
+            '<div class="viz-caption">' + concept.title + ' in ' + lang.name + ' — animated walkthrough</div>' +
+          '</div>' +
+        '</div>' +
+
+      '</div>' +
+
+      '<div class="concept-all-links">' +
+        '<div class="section-title" style="border-color:' + lang.color + '"><span class="section-icon">📚</span> All ' + lang.name + ' Concepts</div>' +
+        '<div class="concept-link-grid">' +
+          allConcepts.map(function(c) {
+            var isActive = c.id === concept.id;
+            return '<a href="lang-concept.html?lang=' + lang.id + '&id=' + c.id + '" class="concept-link-card' + (isActive ? ' active' : '') + '" style="border-color:' + (isActive ? lang.color : 'var(--border)') + '">' +
+              '<span class="concept-link-icon">' + c.icon + '</span>' +
+              '<span class="concept-link-title">' + c.title + '</span>' +
+              '<span class="concept-link-diff">' + c.difficulty + '</span>' +
+            '</a>';
+          }).join("") +
+        '</div>' +
+      '</div>' +
+
+      '<div class="pn-nav">' +
+        (prev ? '<a class="pn-card prev" href="lang-concept.html?lang=' + lang.id + '&id=' + prev.id + '"><div class="lbl">← Previous</div><div class="ttl">' + prev.icon + ' ' + prev.title + '</div></a>' : '<div></div>') +
+        (next ? '<a class="pn-card next" href="lang-concept.html?lang=' + lang.id + '&id=' + next.id + '"><div class="lbl">Next →</div><div class="ttl">' + next.icon + ' ' + next.title + '</div></a>' : '<div></div>') +
+      '</div>' +
+
+    '</div>';
+
+  // Visualization
+  var canvas = document.getElementById("viz");
+  if (canvas && typeof mountLangViz === "function") {
+    mountLangViz(canvas, lang);
+  }
+
+  // Subtopic accordion
+  var activeSubViz = null;
+
+  document.querySelectorAll(".subtopic-header").forEach(function(btn) {
+    btn.addEventListener("click", function() {
+      var item = btn.closest(".subtopic-item");
+      var wasOpen = item.classList.contains("open");
+
+      if (activeSubViz && activeSubViz.stop) activeSubViz.stop();
+      activeSubViz = null;
+
+      document.querySelectorAll(".subtopic-item.open").forEach(function(el) {
+        el.classList.remove("open");
+        el.querySelector(".subtopic-arrow").textContent = "▸";
+      });
+
+      if (!wasOpen) {
+        item.classList.add("open");
+        item.querySelector(".subtopic-arrow").textContent = "▾";
+
+        var canvas = item.querySelector(".subtopic-canvas");
+        if (canvas && typeof mountSubtopicViz === "function") {
+          var subId = canvas.dataset.subtopicId;
+          activeSubViz = mountSubtopicViz(canvas, subId, concept.id);
+        }
+      }
+    });
+  });
+
+  // Open first subtopic
+  var first = document.querySelector(".subtopic-item");
+  if (first) {
+    first.classList.add("open");
+    first.querySelector(".subtopic-arrow").textContent = "▾";
+    var firstCanvas = first.querySelector(".subtopic-canvas");
+    if (firstCanvas && typeof mountSubtopicViz === "function") {
+      activeSubViz = mountSubtopicViz(firstCanvas, firstCanvas.dataset.subtopicId, concept.id);
+    }
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+})();
+</script>
+</body>
+</html>

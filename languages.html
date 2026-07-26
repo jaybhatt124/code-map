@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Languages — CODEMAP</title>
+<meta name="description" content="Explore every major programming language — from Assembly to Zig — with history, advantages, security, basics, and visual examples.">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html"><span class="dot"></span>CODE<span class="accent">MAP</span></a>
+    <nav class="nav-links">
+      <a href="index.html" class="nav-link">Concepts</a>
+      <a href="languages.html" class="nav-link active">Languages</a>
+    </nav>
+    <div class="searchbox">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="search" type="text" placeholder="Search topics… (e.g. Python, CSS, DBMS)">
+    </div>
+  </div>
+</div>
+
+<section class="hero">
+  <div class="wrap">
+    <div class="eyebrow">explore · compare · learn</div>
+    <h1>Every major <span class="grad">topic,</span> explored.</h1>
+    <p class="lead">Programming languages, web technologies, and CS fundamentals — each with history, concepts, code examples, and visual animations.</p>
+    <div class="hero-stats">
+      <div class="stat"><b>9</b><span>topics</span></div>
+      <div class="stat"><b>120</b><span>advantages</span></div>
+      <div class="stat"><b>100</b><span>basics topics</span></div>
+      <div class="stat"><b>0</b><span>paywalls</span></div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+  <div class="filterbar">
+    <button class="chip active" data-filter="all">All</button>
+    <button class="chip" data-filter="language">Languages</button>
+    <button class="chip" data-filter="webtech">Web Tech</button>
+    <button class="chip" data-filter="csfund">CS Fundamentals</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <div id="langGrid" class="lang-grid"></div>
+</div>
+
+<footer>CODEMAP — built for visual learners · progress saved locally in your browser</footer>
+
+<script src="js/languages-data.js"></script>
+<script>
+(function() {
+  var grid = document.getElementById("langGrid");
+  var search = document.getElementById("search");
+  var params = { q: "", filter: "all" };
+
+  function getCat(lang) {
+    var p = (lang.paradigm || "").toLowerCase();
+    if (p.includes("markup") || p.includes("style sheet")) return "webtech";
+    if (p.includes("computer science") || p.includes("database")) return "csfund";
+    return "language";
+  }
+
+  function matchesFilter(lang) {
+    if (params.filter === "all") return true;
+    return getCat(lang) === params.filter;
+  }
+
+  function render() {
+    grid.innerHTML = "";
+    var filtered = LANGUAGES
+      .filter(function(l) { return matchesFilter(l); })
+      .filter(function(l) {
+        if (!params.q) return true;
+        var q = params.q.toLowerCase();
+        return l.name.toLowerCase().includes(q) ||
+               l.tagline.toLowerCase().includes(q) ||
+               l.creator.toLowerCase().includes(q) ||
+               String(l.year).includes(q);
+      });
+
+    if (filtered.length === 0) {
+      grid.innerHTML = '<p style="color:var(--text-faint);font-family:var(--mono);padding:40px 0;text-align:center;">No topics match "' + params.q + '"</p>';
+      return;
+    }
+
+    filtered.forEach(function(lang) {
+      var a = document.createElement("a");
+      a.href = "language.html?id=" + lang.id;
+      a.className = "lang-card";
+      a.style.setProperty("--lang-color", lang.color);
+      a.innerHTML =
+        '<div class="lang-icon" style="background:' + lang.color + '">' + lang.icon + '</div>' +
+        '<div class="lang-info">' +
+          '<h3>' + lang.name + '</h3>' +
+          '<p class="lang-tagline">' + lang.tagline + '</p>' +
+          '<div class="lang-meta">' +
+            '<span class="lang-badge" style="border-color:' + lang.color + '">' + lang.year + '</span>' +
+            '<span class="lang-badge" style="border-color:' + lang.color + '">' + lang.paradigm.split('(')[0].trim() + '</span>' +
+            '<span class="lang-badge" style="border-color:' + lang.color + '">' + (lang.typed === "N/A" ? "—" : lang.typed.split(' ')[0]) + '</span>' +
+          '</div>' +
+        '</div>';
+      grid.appendChild(a);
+    });
+  }
+
+  search.addEventListener("input", function(e) {
+    params.q = e.target.value;
+    render();
+  });
+
+  document.querySelectorAll(".chip").forEach(function(chip) {
+    chip.addEventListener("click", function() {
+      document.querySelectorAll(".chip").forEach(function(c) { c.classList.remove("active"); });
+      chip.classList.add("active");
+      params.filter = chip.dataset.filter;
+      render();
+    });
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

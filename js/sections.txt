@@ -1,0 +1,131 @@
+  r: {
+    vectorization: [
+      { id: "vectorized-ops", title: "Vectorized Operations", content: "R operations are naturally vectorized over vectors.", code: "x <- 1:10\ny <- x * 2 + 1\nresult <- sqrt(x^2 + y^2)\nprint(result)" },
+      { id: "apply-family", title: "apply Family", content: "apply, lapply, sapply apply functions over arrays or lists.", code: "mat <- matrix(1:12, nrow=3)\nrow_sums <- apply(mat, 1, sum)\ncol_means <- apply(mat, 2, mean)\nprint(row_sums)" },
+      { id: "ifelse-vectorized", title: "Vectorized Conditional", content: "ifelse is the vectorized version of if/else.", code: "scores <- c(85, 42, 93, 67, 71)\ngrades <- ifelse(scores >= 90, \"A\",\n    ifelse(scores >= 80, \"B\",\n    ifelse(scores >= 70, \"C\", \"F\")))\nprint(grades)" },
+      { id: "which-find", title: "which and find", content: "which returns indices of TRUE values.", code: "x <- c(3, 7, 2, 9, 1, 5)\nhigh <- which(x > 5)\nprint(x[high])  # 7, 9" }
+    ],
+    "data-frames": [
+      { id: "create-dataframe", title: "Creating Data Frames", content: "data.frame creates tabular data with columns as vectors.", code: "df <- data.frame(\n    name = c(\"Alice\", \"Bob\", \"Carol\"),\n    age = c(25, 30, 35),\n    score = c(92.5, 88.0, 95.3)\n)\nprint(df)" },
+      { id: "dplyr-verbs", title: "dplyr Verbs", content: "filter, select, mutate, arrange, and summarise.", code: "library(dplyr)\nresult <- df %>%\n    filter(age > 25) %>%\n    mutate(letter_grade = ifelse(score > 90, \"A\", \"B\")) %>%\n    summarise(avg_score = mean(score))" },
+      { id: "tidyr-pivot", title: "Tidyr Pivoting", content: "pivot_longer and pivot_wider transform between formats.", code: "library(tidyr)\nwide <- data.frame(id=1:3, Q1=c(10,20,30), Q2=c(15,25,35))\nlong <- pivot_longer(wide, cols=starts_with(\"Q\"),\n    names_to=\"quarter\", values_to=\"value\")" },
+      { id: "merge-joins", title: "Merge and Joins", content: "merge joins data frames by common columns.", code: "users <- data.frame(user_id=1:3, name=c(\"A\",\"B\",\"C\"))\norders <- data.frame(user_id=c(1,1,2), total=c(10,20,15))\nresult <- merge(users, orders, by=\"user_id\")\ntotals <- aggregate(total ~ user_id + name, data=result, sum)" }
+    ],
+    "formula-interface": [
+      { id: "formula-basics", title: "Formula Basics", content: "The ~ operator defines formulas for modeling.", code: "model <- lm(mpg ~ wt + hp, data=mtcars)\nsummary(model)" },
+      { id: "interaction-terms", title: "Interactions and Polynomials", content: "Interactions test combined effects. I() protects arithmetic.", code: "model <- lm(mpg ~ wt * cyl + I(wt^2), data=mtcars)\nsummary(model)" },
+      { id: "formula-operators", title: "Formula Operators", content: "+ adds terms, * includes interactions, - removes.", code: "full <- lm(mpg ~ wt + hp + am + wt:hp, data=mtcars)\nreduced <- update(full, . ~ . - wt:hp)\nno_intercept <- lm(mpg ~ wt + hp - 1, data=mtcars)" },
+      { id: "factor-handling", title: "Factors in Formulas", content: "R automatically converts characters to factors.", code: "df <- data.frame(\n    y = rnorm(12),\n    group = rep(c(\"A\", \"B\", \"C\"), each=4)\n)\nmodel <- lm(y ~ group, data=df)" }
+    ],
+    ggplot2: [
+      { id: "ggplot-basics", title: "ggplot Basics", content: "Build plots layer by layer: data, aesthetics, and geoms.", code: "library(ggplot2)\nggplot(mtcars, aes(x=wt, y=mpg)) +\n    geom_point(color=\"blue\", size=3) +\n    labs(title=\"Weight vs MPG\") +\n    theme_minimal()" },
+      { id: "geoms", title: "Common Geoms", content: "geom_point, geom_line, geom_bar, geom_boxplot.", code: "ggplot(mtcars, aes(x=factor(cyl), y=mpg, fill=factor(cyl))) +\n    geom_boxplot() +\n    geom_jitter(width=0.1, alpha=0.5) +\n    scale_fill_brewer(palette=\"Set2\")" },
+      { id: "faceting", title: "Faceting", content: "Create subplots by grouping variables.", code: "ggplot(mtcars, aes(x=wt, y=mpg)) +\n    geom_point() +\n    geom_smooth(method=\"lm\") +\n    facet_wrap(~am, labeller=label_both)" },
+      { id: "themes", title: "Themes and Styling", content: "Themes control non-data visual elements.", code: "ggplot(mtcars, aes(x=wt, y=mpg, color=hp)) +\n    geom_point(size=3) +\n    scale_color_viridis_c() +\n    theme_bw(base_size=14)" }
+    ]
+  },
+  dart: {
+    "null-safety-dart": [
+      { id: "non-nullable-default", title: "Non-Nullable by Default", content: "Variables are non-nullable by default. Use ? to opt in.", code: "String name = 'Alice';\nString? nickname = null;\nprint(nickname ?? name);" },
+      { id: "late-keyword", title: "The late Keyword", content: "late defers initialization to after declaration.", code: "late final String config;\n\nvoid init() {\n    config = loadConfig();\n}" },
+      { id: "null-assertion", title: "Null Assertion (!)", content: "! asserts a value is non-null, converting T? to T.", code: "String? input = getUserInput();\nif (input != null) {\n    print(input.toUpperCase());\n}" },
+      { id: "null-cascade", title: "Null-Aware Operators", content: "?. calls only if non-null. ??= assigns only if null.", code: "String? name;\nname ??= 'default';\nprint(name?.toUpperCase());" }
+    ],
+    "async-await-dart": [
+      { id: "future-basics", title: "Future Basics", content: "A Future represents a pending async result.", code: "Future<String> fetchData() async {\n    await Future.delayed(Duration(seconds: 1));\n    return 'Hello from server';\n}\n\nvoid main() async {\n    String result = await fetchData();\n    print(result);\n}" },
+      { id: "stream-basics", title: "Stream Basics", content: "Streams emit multiple values over time.", code: "Stream<int> countStream() async* {\n    for (int i = 0; i < 5; i++) {\n        await Future.delayed(Duration(milliseconds: 500));\n        yield i;\n    }\n}\n\nawait for (int val in countStream()) {\n    print(val);\n}" },
+      { id: "error-handling-dart", title: "Async Error Handling", content: "Use try/catch with await for Future errors.", code: "Future<void> safeFetch() async {\n    try {\n        var response = await http.get(Uri.parse('https://api.com'));\n        print(response.statusCode);\n    } catch (e) {\n        print('Error: $e');\n    }\n}" },
+      { id: "completer", title: "Completer", content: "Completer manually controls a Future's completion.", code: "import 'dart:async';\n\nFuture<String> manualFuture() {\n    var completer = Completer<String>();\n    Future.delayed(Duration(seconds: 1), () {\n        completer.complete('Done!');\n    });\n    return completer.future;\n}" }
+    ],
+    "widget-tree": [
+      { id: "stateless-widget", title: "StatelessWidget", content: "Immutable widget. Build method returns a widget tree.", code: "class Greeting extends StatelessWidget {\n    final String name;\n    const Greeting({required this.name});\n    @override\n    Widget build(BuildContext context) {\n        return Text('Hello, $name!');\n    }\n}" },
+      { id: "stateful-widget", title: "StatefulWidget", content: "Has mutable state. setState triggers a rebuild.", code: "class Counter extends StatefulWidget {\n    @override\n    State<Counter> createState() => _CounterState();\n}\n\nclass _CounterState extends State<Counter> {\n    int count = 0;\n    @override\n    Widget build(BuildContext context) {\n        return Column(children: [\n            Text('Count: $count'),\n            ElevatedButton(onPressed: () => setState(() => count++), child: Text('Add')),\n        ]);\n    }\n}" },
+      { id: "widget-composition", title: "Widget Composition", content: "Flutter UIs are built by composing widgets into a tree.", code: "class ProductCard extends StatelessWidget {\n    final String name;\n    final double price;\n    const ProductCard({required this.name, required this.price});\n    @override\n    Widget build(BuildContext context) {\n        return Card(child: Column(children: [\n            Text(name, style: TextStyle(fontWeight: FontWeight.bold)),\n        ]));\n    }\n}" },
+      { id: "builder-pattern", title: "Builder Pattern", content: "ListView.builder creates children lazily.", code: "class ItemList extends StatelessWidget {\n    final List<String> items;\n    const ItemList({required this.items});\n    @override\n    Widget build(BuildContext context) {\n        return ListView.builder(\n            itemCount: items.length,\n            itemBuilder: (ctx, i) => ListTile(title: Text(items[i])),\n        );\n    }\n}" }
+    ],
+    "mixins-darts": [
+      { id: "mixin-basics", title: "Mixin Basics", content: "Mixins add reusable behavior to classes.", code: "mixin Logger {\n    void log(String msg) => print('[LOG] $msg');\n}\n\nclass App with Logger {\n    void start() { log('App started'); }\n}" },
+      { id: "mixin-on", title: "Constraining Mixins", content: "mixin X on Y restricts to classes extending Y.", code: "class Base { int value = 0; }\n\nmixin Doubler on Base {\n    void doubleValue() => value *= 2;\n}\n\nclass MyNum extends Base with Doubler {}" },
+      { id: "multiple-mixins", title: "Multiple Mixins", content: "Classes can apply multiple mixins.", code: "mixin Flyer { void fly() => print('flying'); }\nmixin Swimmer { void swim() => print('swimming'); }\n\nclass Duck with Flyer, Swimmer {\n    void quack() => print('quack');\n}" },
+      { id: "abstract-mixin", title: "Abstract Mixin Classes", content: "abstract mixin class defines abstract methods for mixins.", code: "abstract mixin class Repository<T> {\n    List<T> items = [];\n    void add(T item) => items.add(item);\n    T findById(bool Function(T) predicate);\n}" }
+    ]
+  },
+  scala: {
+    "case-classes": [
+      { id: "case-class-basics", title: "Case Class Basics", content: "Immutable data carriers with automatic equals, toString, hashCode, copy.", code: "case class Point(x: Double, y: Double)\nval p1 = Point(1.0, 2.0)\nval p2 = p1.copy(x = 5.0)\nprintln(p1 == Point(1.0, 2.0)) // true" },
+      { id: "case-class-pattern", title: "Case Classes in Pattern Matching", content: "Destructure naturally in match expressions.", code: "sealed trait Shape\ncase class Circle(r: Double) extends Shape\ncase class Rect(w: Double, h: Double) extends Shape\n\ndef area(s: Shape) = s match {\n    case Circle(r) => math.Pi * r * r\n    case Rect(w, h) => w * h\n}" },
+      { id: "case-class-companion", title: "Companion Objects", content: "Automatic apply method enables construction without new.", code: "case class User(name: String, age: Int)\nval u1 = User(\"Alice\", 30)\nprintln(u1) // User(Alice,30)" },
+      { id: "sealed-hierarchy", title: "Sealed Case Class Hierarchies", content: "sealed traits + case classes form closed ADTs.", code: "sealed trait Expr\ncase class Num(v: Double) extends Expr\ncase class Add(a: Expr, b: Expr) extends Expr\n\ndef eval(e: Expr): Double = e match {\n    case Num(v) => v\n    case Add(a, b) => eval(a) + eval(b)\n}" }
+    ],
+    "pattern-matching": [
+      { id: "match-basics", title: "Match Expression", content: "General-purpose pattern matching.", code: "val x = 42\nval desc = x match {\n    case 0 => \"zero\"\n    case n if n > 0 => \"positive\"\n    case _ => \"negative\"\n}" },
+      { id: "tuple-patterns", title: "Tuple and Collection Patterns", content: "Destructure tuples and lists.", code: "val pairs = List((1, \"a\"), (2, \"b\"), (3, \"c\"))\npairs.foreach {\n    case (num, letter) => println(num + \" -> \" + letter)\n}" },
+      { id: "type-patterns", title: "Type Patterns", content: "Test types and cast in one step.", code: "def describe(x: Any) = x match {\n    case s: String => \"string: \" + s\n    case i: Int => \"integer: \" + i\n    case _: List[_] => \"a list\"\n    case _ => \"unknown\"\n}" },
+      { id: "extractor-objects", title: "Extractor Objects (unapply)", content: "Custom extractors enable pattern matching on any type.", code: "object Email {\n    def unapply(s: String): Option[(String, String)] = {\n        val parts = s.split(\"@\")\n        if (parts.length == 2) Some(parts(0), parts(1)) else None\n    }\n}" }
+    ],
+    traits: [
+      { id: "trait-basics", title: "Trait Basics", content: "Traits define interfaces with optional implementations.", code: "trait Greeting {\n    def hello: String = \"Hello\"\n}\ntrait Formal {\n    def greet(name: String): String\n}\n\nclass Person(name: String) extends Formal with Greeting {\n    def greet(n: String) = hello + \", \" + n\n}" },
+      { id: "stackable-traits", title: "Stackable Traits", content: "Modify behavior using self-type and super calls.", code: "trait Logging { def log(msg: String): Unit }\ntrait ConsoleLogging extends Logging {\n    abstract override def log(msg: String) = {\n        println(\"[LOG] \" + msg); super.log(msg)\n    }\n}" },
+      { id: "self-types", title: "Self Types", content: "A trait must be mixed into a type with certain members.", code: "trait Database {\n    def query(sql: String): List[Map[String, Any]]\n}\n\ntrait UserRepository { self: Database =>\n    def findUser(id: Int) = query(\"SELECT * FROM users WHERE id=\" + id)\n}" },
+      { id: "abstract-vs-concrete", title: "Abstract and Concrete Members", content: "Mix abstract and concrete members in traits.", code: "trait Validator {\n    def validate(input: String): Boolean\n    def minLength: Int = 3\n    def isEmpty(input: String): Boolean = input.trim.isEmpty\n}\n\nclass UsernameValidator extends Validator {\n    def validate(input: String) = !isEmpty(input) && input.length >= minLength\n}" }
+    ],
+    "for-comprehensions": [
+      { id: "for-yield", title: "for-yield Expressions", content: "Monadic sugar for map, flatMap, and filter.", code: "val result = for {\n    x <- List(1, 2, 3)\n    y <- List(10, 20)\n} yield x * y\nprintln(result) // List(10, 20, 20, 40, 30, 60)" },
+      { id: "for-with-guards", title: "For with Guards", content: "if clauses act as filters.", code: "val evens = for {\n    x <- 1 to 10\n    if x % 2 == 0\n} yield x * x\nprintln(evens) // Vector(4, 16, 36, 64, 100)" },
+      { id: "for-with-options", title: "For with Options", content: "Work with Option, unwrapping Some and skipping None.", code: "def divide(a: Int, b: Int): Option[Int] =\n    if (b != 0) Some(a / b) else None\n\nval result = for {\n    x <- divide(10, 2)\n    y <- divide(x, 3)\n} yield y\nprintln(result) // Some(1)" },
+      { id: "for-desugared", title: "Desugaring For Comprehensions", content: "Desugars to map, flatMap, and withFilter calls.", code: "val a = for { x <- List(1,2,3); if x > 1 } yield x * 2\nval b = List(1,2,3).withFilter(_ > 1).map(_ * 2)" }
+    ]
+  },
+  perl: {
+    regex: [
+      { id: "regex-matching", title: "Regex Matching", content: "Perl has built-in regex with m// and s///.", code: "my $text = 'Hello World 123';\nif ($text =~ /\\b(\\w+)\\b.*?(\\d+)/) {\n    print \"Word: $1, Number: $2\n\";\n}" },
+      { id: "regex-captures", title: "Capture Groups", content: "Parentheses create numbered captures via $1, $2.", code: "my $date = '2024-01-15';\nif ($date =~ /(\\d{4})-(\\d{2})-(\\d{2})/) {\n    print \"Year: $1, Month: $2, Day: $3\n\";\n}" },
+      { id: "regex-substitution", title: "Substitution (s///)", content: "s/// replaces text matching a pattern.", code: "my $str = 'Hello World';\n$str =~ s/World/Perl/;\nprint \"$str\n\";  # Hello Perl\n$str =~ s/\\b(\\w)/\\U$1/g;\nprint \"$str\n\";  # HELLO PERL" },
+      { id: "regex-modifiers", title: "Regex Modifiers", content: "i (case-insensitive), g (global), m (multiline), s (dotall).", code: "my $text = 'foo bar FOO bar';\nmy @matches = ($text =~ /foo/gi);\nprint scalar @matches, \" matches\n\";  # 2" }
+    ],
+    context: [
+      { id: "scalar-list-context", title: "Scalar vs List Context", content: "The same expression evaluates differently by context.", code: "my @nums = (1, 2, 3, 4, 5);\nmy $count = scalar @nums;  # 5\nmy @evens = grep { $_ % 2 == 0 } @nums;" },
+      { id: "wantarray", title: "wantarray", content: "wantarray tells you the calling context.", code: "sub get_names {\n    my @names = ('Alice', 'Bob', 'Carol');\n    return wantarray ? @names : scalar @names;\n}" },
+      { id: "hash-context", title: "Hash Context", content: "Force hash context with %{}.", code: "my @pairs = ('a', 1, 'b', 2, 'c', 3);\nmy %hash = @pairs;\nprint \"$hash{a}\n\";  # 1" },
+      { id: "auto-vivification", title: "Auto-vivification", content: "Referencing automatically creates intermediate structures.", code: "my $data;\n$data->{users}[0]->{name} = 'Alice';\n# Creates: { users => [{ name => 'Alice' }] }" }
+    ],
+    packages: [
+      { id: "package-basics", title: "Package Basics", content: "Packages provide namespaces for subroutines and variables.", code: "package MathUtils;\nuse strict;\n\nsub add { return $_[0] + $_[1]; }\nsub multiply { return $_[0] * $_[1]; }\n\n1;\n# Elsewhere:\nuse MathUtils;\nprint MathUtils::add(3, 4);" },
+      { id: "oo-packages", title: "OO with Packages", content: "Bless references into packages to create objects.", code: "package Person;\nsub new {\n    my ($class, %args) = @_;\n    return bless { name => $args{name}, age => $args{age} }, $class;\n}\nsub greet { return \"Hello, \" . $_[0]->{name}; }\n\nmy $p = Person->new(name => 'Alice', age => 30);\nprint $p->greet();" },
+      { id: "exports", title: "Exporter", content: "Exporter lets packages export functions to the caller.", code: "package MyFuncs;\nuse Exporter 'import';\nour @EXPORT_OK = qw(add multiply);\n\nsub add { $_[0] + $_[1]; }\nsub multiply { $_[0] * $_[1]; }" },
+      { id: "modules", title: "Modules (.pm files)", content: "Modules are packages stored in .pm files with a final 1;.", code: "# lib/MyModule.pm\npackage MyModule;\nuse strict;\n\nsub new { bless {}, $_[0] }\nsub version { '1.0' }\n\n1;" }
+    ],
+    references: [
+      { id: "scalar-ref", title: "Scalar References", content: "Backslash creates a reference. Dereference with $$.", code: "my $name = 'Alice';\nmy $ref = \\$name;\nprint $$ref;  # Alice" },
+      { id: "array-ref", title: "Array References", content: "Square brackets create array references.", code: "my $arr = [1, 2, 3, 4, 5];\nprint $$arr->[2];  # 3\npush @$arr, 6;\nprint scalar @$arr;  # 6" },
+      { id: "hash-ref", title: "Hash References", content: "Curly braces create hash references.", code: "my $hash = { name => 'Bob', age => 25 };\nprint $$hash->{name};  # Bob\n$hash->{email} = 'bob@example.com';" },
+      { id: "anonymous-subs", title: "Anonymous Subroutines", content: "sub {} creates anonymous subs stored in references.", code: "my $doubler = sub { $_[0] * 2 };\nprint $doubler->(5);  # 10\n\nmy @callbacks = (\n    sub { print \"first\\n\" },\n    sub { print \"second\\n\" },\n);\n$callbacks[1]->();" }
+    ]
+  },
+  lua: {
+    tables: [
+      { id: "table-basics", title: "Table Basics", content: "Tables are Lua's only data structure, combining arrays and dictionaries.", code: "local person = { name = \"Alice\", age = 30 }\nprint(person.name)  -- Alice\nperson.phone = \"555-0123\"" },
+      { id: "array-style", title: "Array-Style Tables", content: "Numeric keys starting at 1 create array-like tables.", code: "local fruits = { \"apple\", \"banana\", \"cherry\" }\nprint(#fruits)  -- 3\n\nfor i, v in ipairs(fruits) do\n    print(i, v)\nend" },
+      { id: "table-operations", title: "Table Operations", content: "table.insert, table.remove, table.sort are built-in.", code: "local nums = { 5, 3, 1, 4, 2 }\ntable.insert(nums, 6)\ntable.remove(nums, 1)\ntable.sort(nums)\n\nfor _, v in ipairs(nums) do\n    io.write(v, \" \")\nend" },
+      { id: "nested-tables", title: "Nested Tables", content: "Tables can contain other tables.", code: "local matrix = {\n    { 1, 2, 3 },\n    { 4, 5, 6 },\n    { 7, 8, 9 },\n}\n\nprint(matrix[2][3])  -- 6" }
+    ],
+    metatables: [
+      { id: "metatable-basics", title: "Metatable Basics", content: "Metatables change how tables behave with operators.", code: "local mt = { __index = { default = 0 } }\nlocal obj = setmetatable({}, mt)\nprint(obj.default)  -- 0 (from __index)" },
+      { id: "operator-overload", title: "Operator Overload", content: "Define __add, __sub, __mul for custom arithmetic.", code: "local Vec2 = { __add = function(a, b)\n    return setmetatable({ x = a.x + b.x, y = a.y + b.y }, Vec2)\nend }\nVec2.__index = Vec2\n\nlocal v1 = setmetatable({ x = 1, y = 2 }, Vec2)\nlocal v2 = setmetatable({ x = 3, y = 4 }, Vec2)\nlocal v3 = v1 + v2\nprint(v3.x, v3.y)  -- 4, 6" },
+      { id: "call-metamethod", title: "__call Metamethod", content: "Make tables callable like functions.", code: "local Counter = {}\nCounter.__index = Counter\n\nfunction Counter.new(start)\n    return setmetatable({ count = start or 0 }, Counter)\nend\n\nfunction Counter:__call()\n    self.count = self.count + 1\n    return self.count\nend\n\nlocal c = Counter.new(10)\nprint(c())  -- 11\nprint(c())  -- 12" },
+      { id: "tostring-metamethod", title: "__tostring Metamethod", content: "Custom string representation with tostring().", code: "local Point = { __tostring = function(p)\n    return string.format(\"Point(%d, %d)\", p.x, p.y)\nend }\nPoint.__index = Point\n\nlocal p = setmetatable({ x = 3, y = 4 }, Point)\nprint(tostring(p))  -- Point(3, 4)" }
+    ],
+    "coroutines-lua": [
+      { id: "coroutine-create", title: "Coroutine Basics", content: "coroutine.create makes one; resume starts it.", code: "local co = coroutine.create(function()\n    print(\"step 1\")\n    coroutine.yield()\n    print(\"step 2\")\nend)\n\ncoroutine.resume(co)  -- step 1\ncoroutine.resume(co)  -- step 2" },
+      { id: "coroutine-values", title: "Passing Values", content: "yield and resume can pass values back and forth.", code: "local co = coroutine.create(function(n)\n    for i = 1, n do\n        coroutine.yield(i * i)\n    end\nend)\n\nfor i = 1, 5 do\n    local ok, val = coroutine.resume(co, 5)\n    if ok then print(val) end\nend" },
+      { id: "coroutine-as-iterator", title: "Coroutines as Iterators", content: "coroutine.wrap creates a callable iterator.", code: "local function countdown(n)\n    return coroutine.wrap(function()\n        for i = n, 1, -1 do\n            coroutine.yield(i)\n        end\n    end)\nend\n\nfor val in countdown(5) do\n    io.write(val, \" \")\nend" },
+      { id: "producer-consumer", title: "Producer-Consumer Pattern", content: "Coroutines enable cooperative multitasking.", code: "local function producer()\n    for i = 1, 10 do\n        coroutine.yield(i)\n    end\nend\n\nlocal co = coroutine.create(producer)\nwhile coroutine.status(co) ~= \"dead\" do\n    local ok, val = coroutine.resume(co)\n    if ok then print(\"consumed:\", val) end\nend" }
+    ],
+    "first-class-functions": [
+      { id: "function-literals", title: "Function Literals", content: "Functions are first-class values.", code: "local add = function(a, b) return a + b end\nlocal multiply = function(a, b) return a * b end\n\nlocal ops = { add = add, mul = multiply }\nprint(ops.add(3, 4))  -- 7" },
+      { id: "closures", title: "Closures in Lua", content: "Functions capture their enclosing environment.", code: "function make_counter(start)\n    local n = start or 0\n    return function()\n        n = n + 1\n        return n\n    end\nend\n\nlocal c = make_counter(0)\nprint(c())  -- 1\nprint(c())  -- 2" },
+      { id: "higher-order", title: "Higher-Order Functions", content: "Functions that take or return other functions.", code: "local function apply(f, a, b)\n    return f(a, b)\nend\n\nprint(apply(function(x, y) return x + y end, 3, 4))  -- 7\nprint(apply(function(x, y) return x * y end, 3, 4))  -- 12" },
+      { id: "varargs", title: "Variadic Functions", content: "... captures extra arguments.", code: "function sum(...)\n    local args = { ... }\n    local total = 0\n    for _, v in ipairs(args) do\n        total = total + v\n    end\n    return total\nend\n\nprint(sum(1, 2, 3, 4, 5))  -- 15" }
+    ]
+  }
+};
