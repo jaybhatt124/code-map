@@ -1,34 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Concept — CODEMAP</title>
-<link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Concept — CODEMAP</title>
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-
-<div class="topbar">
-  <div class="topbar-inner">
-    <a class="brand" href="index.html"><span class="dot"></span>CODE<span class="accent">MAP</span></a>
-    <nav class="nav-links">
-      <a href="index.html" class="nav-link">Concepts</a>
-      <a href="languages.html" class="nav-link">Languages</a>
-    </nav>
-    <div class="searchbox">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input id="search" type="text" placeholder="Search all concepts…" onfocus="window.location.href='index.html'" readonly>
-    </div>
-    <div class="progress-pill" id="progressPill"></div>
-  </div>
-</div>
-
-<main id="conceptRoot"></main>
-
-<footer>CODEMAP — built for visual learners · progress saved locally in your browser</footer>
-
-<script src="js/data.js"></script>
-<script src="js/visualizations.js"></script>
-<script src="js/app.js"></script>
+  <nav class="navbar">
+    <a href="index.html" class="nav-brand">CODEMAP</a>
+  </nav>
+  <main class="container" id="content">
+    <div class="breadcrumb" id="breadcrumb"></div>
+    <div class="concept-page" id="conceptPage"></div>
+  </main>
+  <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"></button>
+  <script src="js/theme.js"></script>
+  <script src="js/subjects-data.js"></script>
+  <script src="js/viz-controls.js"></script>
+  <script src="js/language-visualizations.js"></script>
+  <script>
+    var params = new URLSearchParams(window.location.search);
+    var subjectId = params.get("subject");
+    var unitIdx = parseInt(params.get("unit"));
+    var conceptId = params.get("id");
+    var subject = SUBJECTS.find(function(s) { return s.id === subjectId; });
+    if (!subject || isNaN(unitIdx) || !conceptId) {
+      document.getElementById("content").innerHTML = "<h2>Concept not found. <a href='index.html'>Go back</a></h2>";
+    } else {
+      var unit = subject.units[unitIdx];
+      var concept = unit.concepts.find(function(c) { return c.id === conceptId; });
+      if (!concept) {
+        document.getElementById("content").innerHTML = "<h2>Concept not found. <a href='subject.html?id=" + subjectId + "'>Go back</a></h2>";
+      } else {
+        document.title = concept.title + " — CODEMAP";
+        document.getElementById("breadcrumb").innerHTML =
+          '<a href="index.html">Subjects</a> / ' +
+          '<a href="subject.html?id=' + subjectId + '">' + subject.title + '</a> / ' +
+          '<span>' + unit.title + ': ' + unit.subtitle + '</span>';
+        var allConcepts = [];
+        subject.units.forEach(function(u) { u.concepts.forEach(function(c) { allConcepts.push(c); }); });
+        var idx = allConcepts.findIndex(function(c) { return c.id === conceptId; });
+        var navHtml = "";
+        if (idx > 0) { var prev = allConcepts[idx - 1]; navHtml += '<a href="concept.html?subject=' + subjectId + '&unit=' + unitIdx + '&id=' + prev.id + '" class="prev-btn">&larr; ' + prev.title + '</a>'; }
+        if (idx < allConcepts.length - 1) { var next = allConcepts[idx + 1]; navHtml += '<a href="concept.html?subject=' + subjectId + '&unit=' + unitIdx + '&id=' + next.id + '" class="next-btn">' + next.title + ' &rarr;</a>'; }
+        var page = document.getElementById("conceptPage");
+        page.innerHTML =
+          '<div class="concept-header" style="border-left-color:' + subject.color + '">' +
+            '<div class="concept-icon">' + subject.icon + '</div>' +
+            '<div><h1>' + concept.title + '</h1><p class="concept-unit">' + unit.title + ': ' + unit.subtitle + '</p></div>' +
+          '</div>' +
+          '<div class="concept-section">' +
+            '<h2>Theory</h2>' +
+            '<div class="concept-theory">' + concept.theory.replace(/\n/g, '<br>') + '</div>' +
+          '</div>' +
+          '<div class="concept-section">' +
+            '<h2>Code Example</h2>' +
+            '<pre class="concept-code"><code>' + concept.code.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;") + '</code></pre>' +
+          '</div>' +
+          '<div class="concept-section">' +
+            '<h2>Visualization</h2>' +
+            '<div id="vizControls"></div>' +
+            '<canvas class="concept-canvas" id="vizCanvas"></canvas>' +
+          '</div>' +
+          '<div class="concept-nav">' + navHtml + '</div>';
+        if (window.mountConceptViz) {
+          var canvas = document.getElementById("vizCanvas");
+          var controlsEl = document.getElementById("vizControls");
+          if (canvas) window.mountConceptViz(canvas, conceptId, controlsEl);
+        }
+      }
+    }
+  </script>
 </body>
 </html>

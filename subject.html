@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Subject — CODEMAP</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="index.html" class="nav-brand">CODEMAP</a>
+  </nav>
+  <main class="container" id="content">
+    <div class="breadcrumb" id="breadcrumb"></div>
+    <div class="subject-header" id="subjectHeader"></div>
+    <div class="units-container" id="unitsContainer"></div>
+  </main>
+  <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"></button>
+  <script src="js/theme.js"></script>
+  <script src="js/subjects-data.js"></script>
+  <script>
+    var params = new URLSearchParams(window.location.search);
+    var subjectId = params.get("id");
+    var subject = SUBJECTS.find(function(s) { return s.id === subjectId; });
+    if (!subject) {
+      document.getElementById("content").innerHTML = "<h2>Subject not found. <a href='index.html'>Go back</a></h2>";
+    } else {
+      document.title = subject.title + " — CODEMAP";
+      document.getElementById("breadcrumb").innerHTML = '<a href="index.html">Subjects</a> / <span>' + subject.title + '</span>';
+      var total = 0;
+      subject.units.forEach(function(u) { total += u.concepts.length; });
+      var header = document.getElementById("subjectHeader");
+      header.innerHTML =
+        '<div class="subject-icon-lg">' + subject.icon + '</div>' +
+        '<h1>' + subject.title + '</h1>' +
+        '<p>' + subject.subtitle + '</p>' +
+        '<p class="desc">' + subject.description + '</p>' +
+        '<div class="subject-meta"><span>' + subject.units.length + ' Units</span><span>' + total + ' Concepts</span></div>';
+      header.style.borderLeftColor = subject.color;
+      var container = document.getElementById("unitsContainer");
+      subject.units.forEach(function(unit, ui) {
+        var unitEl = document.createElement("div");
+        unitEl.className = "unit-card";
+        var conceptsHtml = "";
+        unit.concepts.forEach(function(c) {
+          conceptsHtml += '<a href="concept.html?subject=' + subjectId + '&unit=' + ui + '&id=' + c.id + '" class="concept-link">' +
+            '<span class="concept-dot" style="background:' + subject.color + '"></span>' +
+            '<span>' + c.title + '</span></a>';
+        });
+        unitEl.innerHTML =
+          '<div class="unit-header">' +
+            '<div class="unit-number" style="background:' + subject.color + '20;color:' + subject.color + '">' + (ui + 1) + '</div>' +
+            '<div class="unit-info"><h2>' + unit.subtitle + '</h2><p>' + unit.concepts.length + ' concepts</p></div>' +
+          '</div>' +
+          '<div class="unit-concepts">' + conceptsHtml + '</div>';
+        container.appendChild(unitEl);
+      });
+    }
+  </script>
+</body>
+</html>
