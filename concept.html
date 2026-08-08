@@ -51,12 +51,22 @@
             '<div><h1>' + concept.title + '</h1><p class="concept-unit">' + unit.title + ': ' + unit.subtitle + '</p></div>' +
           '</div>' +
           '<div class="concept-section">' +
-            '<h2>Theory</h2>' +
+            (concept.definition ? '<div class="concept-definition"><span class="def-label">Definition</span><span class="def-text">' + concept.definition.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\n/g, '<br>') + '</span></div>' : '') +
+            '<h2>Easy Explanation</h2>' +
             '<div class="concept-theory">' + concept.theory.replace(/\n/g, '<br>') + '</div>' +
           '</div>' +
           '<div class="concept-section">' +
-            '<h2>Code Example</h2>' +
-            '<pre class="concept-code"><code>' + concept.code.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;") + '</code></pre>' +
+            '<h2>Code Examples</h2>' +
+            '<div class="code-block">' +
+              '<div class="code-title">Example 1: ' + concept.title + '</div>' +
+              '<pre class="concept-code"><code>' + concept.code.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;") + '</code></pre>' +
+            '</div>' +
+            (concept.examples || []).map(function(ex, i) {
+              return '<div class="code-block">' +
+                '<div class="code-title">Example ' + (i + 2) + ': ' + ex.title + '</div>' +
+                '<pre class="concept-code"><code>' + ex.code.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;") + '</code></pre>' +
+              '</div>';
+            }).join('') +
           '</div>' +
           '<div class="concept-section">' +
             '<h2>Visualization</h2>' +

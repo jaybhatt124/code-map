@@ -2752,28 +2752,31 @@
   function subFunctionDeclaration(canvas, ctx, w, h, t, userData, vizState) {
     txt(ctx, w/2, 18, "Function Declaration — Named Reusable Block", { sz: 11, c: P.cyan, w: "700" });
     var cx = w / 2;
+    var nums = (userData && userData.numbers) || [5, 3];
+    var a = nums[0] || 5, b = nums[1] || 3;
+    var result = a + b;
     // Function box
     box(ctx, 40, 65, w - 80, 180, { r: 12, stroke: P.cyan });
     // Header
     box(ctx, 40, 65, w - 80, 40, { r: 12, fill: P.cyan + "22", stroke: P.cyan });
-    txt(ctx, cx, 85, "function greet(name)", { sz: 13, c: P.cyan, w: "700" });
+    txt(ctx, cx, 85, "function add(a, b)", { sz: 13, c: P.cyan, w: "700" });
     // Parts
     box(ctx, 60, 120, 110, 36, { stroke: P.pink });
-    txt(ctx, 115, 138, 'name (param)', { sz: 9, c: P.pink });
+    txt(ctx, 115, 138, 'a='+a+', b='+b+' (params)', { sz: 9, c: P.pink });
     arrow(ctx, 175, 138, 200, 138, { c: P.faint, hd: 4 });
     box(ctx, 205, 120, 160, 36, { stroke: P.green });
-    txt(ctx, 285, 138, '"Hello, " + name', { sz: 9, c: P.green });
+    txt(ctx, 285, 138, 'a + b = ' + result, { sz: 9, c: P.green });
     arrow(ctx, 285, 158, 285, 175, { c: P.faint, hd: 4 });
     box(ctx, 230, 178, 110, 36, { stroke: P.amber });
-    txt(ctx, 285, 196, 'return result', { sz: 9, c: P.amber });
+    txt(ctx, 285, 196, 'return ' + result, { sz: 9, c: P.amber });
     // Labels
     txt(ctx, 60, 108, "PARAMETERS", { sz: 8, c: P.faint, a: "left" });
     txt(ctx, 205, 108, "BODY", { sz: 8, c: P.faint, a: "left" });
     // Call
     box(ctx, 40, 265, w - 80, 50, { stroke: P.orange, glow: P.orange });
-    txt(ctx, cx, 282, "greet('Alice')  →  'Hello, Alice!'", { sz: 11, c: P.orange, w: "600" });
-    txt(ctx, cx, 302, "Call the function with an argument", { sz: 9, c: P.faint });
-    typewriter(ctx, 40, 340, 'function greet(name) {\n    return "Hello, " + name;\n}\nconsole.log(greet("Alice"));', t * 10, { speed: 30, colors: [P.cyan, P.green, P.text, P.orange] });
+    txt(ctx, cx, 282, "add("+a+", "+b+")  →  " + result, { sz: 11, c: P.orange, w: "600" });
+    txt(ctx, cx, 302, "Pass arguments, function returns result", { sz: 9, c: P.faint });
+    typewriter(ctx, 40, 340, 'function add(a, b) {\n    return a + b;\n}\nconsole.log(add('+a+', '+b+'));', t * 10, { speed: 30, colors: [P.cyan, P.green, P.text, P.orange] });
     txt(ctx, cx, h - 18, "Functions encapsulate reusable logic — define once, call many times", { sz: 9, c: P.faint, m: false });
   }
 
@@ -2887,11 +2890,12 @@
     txt(ctx, w/2, 18, "Variable Declaration — Naming a Value", { sz: 11, c: P.cyan, w: "700" });
     var phase = cyc(t, 2.5, 3);
     var cx = w / 2;
-    // Memory allocation visual
+    var nums = (userData && userData.numbers) || [25, 0, 1];
+    var boolVal = nums[2] !== 0;
     var vars = [
-      { name: "age", value: "25", type: "int", color: P.cyan },
+      { name: "age", value: "" + nums[0], type: "int", color: P.cyan },
       { name: "name", value: '"Jay"', type: "string", color: P.pink },
-      { name: "active", value: "true", type: "bool", color: P.amber }
+      { name: "active", value: boolVal ? "true" : "false", type: "bool", color: P.amber }
     ];
     vars.forEach(function(v, i) {
       var vy = 65 + i * 70;
@@ -5564,6 +5568,18 @@
         var arr = '{'+p.nums.join(',')+'}';
         return '#include <stdio.h>\nint main() {\n    int arr[] = '+arr+', n='+p.nums.length+';\n    float sum = 0;\n    for (int i = 0; i < n; i++) {\n        sum += arr[i];\n    }\n    printf("avg = %.1f", sum/n);\n    return 0;\n}\n// Output: avg = '+r;
       }
+    },
+    prime: {
+      name: "Prime Check",
+      parse: function(p) { return { n: parseInt(p[0]) || 7 }; },
+      compute: function(p) { var n=p.n; if(n<2)return"Not Prime";for(var i=2;i*i<=n;i++){if(n%i===0)return"Not Prime";}return"Prime"; },
+      resultLabel: function(p,r) { return p.n+" is "+r; },
+      steps: function(p,r) {
+        return ["1. START","2. Read n = "+p.n,"3. If n < 2 → step 8","4. Set i = 2","5. If i*i > n → step 7","6. If n%i==0 → step 8; else i++ → step 5","7. Print \"Prime\"","8. Print \"Not Prime\"","9. END"];
+      },
+      code: function(p,r) {
+        return '#include <stdio.h>\nint main() {\n    int n = '+p.n+', i, prime = 1;\n    if (n < 2) prime = 0;\n    for (i = 2; i*i <= n; i++) {\n        if (n % i == 0) { prime = 0; break; }\n    }\n    if (prime) printf("Prime");\n    else printf("Not Prime");\n    return 0;\n}\n// Output: '+p.n+' is '+r;
+      }
     }
   };
 
@@ -5959,10 +5975,11 @@
   function subIOOps(canvas, ctx, w, h, t, userData, vizState) {
     var cx = w / 2;
     txt(ctx, cx, 16, "C Input/Output", { sz: 13, c: P.cyan, w: "700" });
+    var nums = (userData && userData.numbers) || [42, 314, 65, 0];
     var specs = [
-      { s: "%d", t2: "int", ex: "42", c: P.green },
-      { s: "%f", t2: "float", ex: "3.14", c: P.blue },
-      { s: "%c", t2: "char", ex: "A", c: P.pink },
+      { s: "%d", t2: "int", ex: "" + nums[0], c: P.green },
+      { s: "%f", t2: "float", ex: (nums[1]/100).toFixed(2), c: P.blue },
+      { s: "%c", t2: "char", ex: String.fromCharCode(Math.abs(nums[2]%26+65)), c: P.pink },
       { s: "%s", t2: "string", ex: "hello", c: P.amber }
     ];
     specs.forEach(function(sp, i) {
@@ -6163,11 +6180,12 @@
   function subPyIO(canvas, ctx, w, h, t, userData, vizState) {
     var cx = w / 2;
     txt(ctx, cx, 16, "Python Input/Output", { sz: 13, c: P.cyan, w: "700" });
+    var nums = (userData && userData.numbers) || [20, 42, 99, 0];
     var ps = [
       ['print("Hello World")', 'Hello World'],
       ['print("a","b",sep="-")', 'a-b'],
       ['print("Hi",end="")', 'Hi'],
-      ['print(f"Age: {20}")', 'Age: 20']
+      ['print(f"Age: {'+nums[0]+'}")', 'Age: '+nums[0]]
     ];
     ps.forEach(function(p, i) {
       var py = 50 + i * 26;
@@ -6770,11 +6788,16 @@
   function subTreeTerminology(canvas, ctx, w, h, t, userData, vizState) {
     var cx = w / 2;
     txt(ctx, cx, 16, "Tree Terminology", { sz: 13, c: P.cyan, w: "700" });
+    var vals = (userData && userData.numbers) || [50, 30, 70, 20, 40, 60, 80];
+    var labels = vals.map(function(v, i) { return String.fromCharCode(65 + i) + "=" + v; });
     var ns = [
-      { x: cx, y: 60, l: "A", c: P.rose }, { x: cx - 80, y: 115, l: "B", c: P.green },
-      { x: cx + 80, y: 115, l: "C", c: P.green }, { x: cx - 120, y: 170, l: "D", c: P.blue },
-      { x: cx - 40, y: 170, l: "E", c: P.blue }, { x: cx + 40, y: 170, l: "F", c: P.pink },
-      { x: cx + 120, y: 170, l: "G", c: P.blue }
+      { x: cx, y: 60, l: labels[0] || "A", c: P.rose },
+      { x: cx - 80, y: 115, l: labels[1] || "B", c: P.green },
+      { x: cx + 80, y: 115, l: labels[2] || "C", c: P.green },
+      { x: cx - 120, y: 170, l: labels[3] || "D", c: P.blue },
+      { x: cx - 40, y: 170, l: labels[4] || "E", c: P.blue },
+      { x: cx + 40, y: 170, l: labels[5] || "F", c: P.pink },
+      { x: cx + 120, y: 170, l: labels[6] || "G", c: P.blue }
     ];
     var edges = [[0,1],[0,2],[1,3],[1,4],[2,5],[2,6]];
     edges.forEach(function(e) { arrow(ctx, ns[e[0]].x, ns[e[0]].y + 15, ns[e[1]].x, ns[e[1]].y - 5, { c: P.dim, lw: 1.5, hd: 0 }); });
